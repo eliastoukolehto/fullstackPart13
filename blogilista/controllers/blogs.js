@@ -1,40 +1,5 @@
 const blogsRouter = require('express').Router()
-const jwt = require('jsonwebtoken')
-const { userExtractor } = require('../utils/middleware')
-const user = require('../models/user')
-const { Sequelize, Model, DataTypes } = require('sequelize')
-
-const sequelize = new Sequelize(process.env.DATABASE_URL)
-
-class Blog extends Model {}
-Blog.init({
-  id: {
-    type: DataTypes.INTEGER,
-    primaryKey: true,
-    autoIncrement: true
-  },
-  author: {
-    type: DataTypes.TEXT,
-  },
-  url: {
-    type: DataTypes.TEXT,
-    allowNull: false
-  },
-  title: {
-      type: DataTypes.TEXT,
-      allowNull: false
-  },
-  likes: {
-    type: DataTypes.INTEGER,
-    defaultValue: 0
-  }
-}, {
-  sequelize,
-  underscored: true,
-  timestamps: false,
-  modelName: 'blog'
-})
-Blog.sync()
+const Blog = require('../models/blog')
 
 
 blogsRouter.get('/', async (request, response) => {
@@ -42,7 +7,7 @@ blogsRouter.get('/', async (request, response) => {
     response.json(blogs)
 })
 
-blogsRouter.post('/', userExtractor, async (request, response) => {
+blogsRouter.post('/', async (request, response) => {
 
   const body = request.body
   console.log(body)
@@ -57,7 +22,7 @@ blogsRouter.post('/', userExtractor, async (request, response) => {
   response.status(201).json(savedBlog) 
 })
 
-blogsRouter.delete('/:id', userExtractor, async (request, response) => {
+blogsRouter.delete('/:id', async (request, response) => {
   const user = request.user
 
   const blog = await Blog.findByPk(request.params.id)
