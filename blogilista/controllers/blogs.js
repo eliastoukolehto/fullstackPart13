@@ -23,7 +23,6 @@ blogsRouter.post('/', async (request, response) => {
 })
 
 blogsRouter.delete('/:id', async (request, response) => {
-  const user = request.user
 
   const blog = await Blog.findByPk(request.params.id)
 
@@ -34,14 +33,14 @@ blogsRouter.delete('/:id', async (request, response) => {
 
 blogsRouter.put('/:id', async (request, response) => {
   const body = request.body
-  const blog = {
-    author: body.author,
-    title: body.title,
-    url: body.url,
-    likes: body.likes
-  }
-  const updatedBlog = await Blog.findByIdAndUpdate(request.params.id, blog, { new: true })
+  const blog = await Blog.findByPk(request.params.id)
+  if (blog) {
+  blog.set({...body})
+  updatedBlog = await blog.save()
   response.json(updatedBlog)
+  } else {
+    response.status(404).end()
+  }
 })
 
 module.exports = blogsRouter
