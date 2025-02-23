@@ -1,8 +1,8 @@
-POST http://localhost:3001/api/users
+PUT http://localhost:3001/api/users/test
 Content-Type: application/json
 
 {
-    "username": "test@test.com",
+    "username": "test2",
     "name": "Firstname Lastname",
     "password": "salasana"
 }

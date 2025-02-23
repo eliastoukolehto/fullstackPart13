@@ -1,33 +1,42 @@
 const blogsRouter = require('express').Router()
-const Blog = require('../models/blog')
+const { Blog, User } = require('../models')
+const { tokenExtractor } = require('../utils/middleware')
 
 
 blogsRouter.get('/', async (request, response) => {
-    const blogs = await Blog.findAll()
+    const blogs = await Blog.findAll({
+      include: {
+        model: User
+      }
+    })
     response.json(blogs)
 })
 
-blogsRouter.post('/', async (request, response) => {
-
+blogsRouter.post('/', tokenExtractor, async (request, response) => {
   const body = request.body
-  console.log(body)
+  const user = await User.findByPk(request.decodedToken.id)
 
-  savedBlog = await Blog.create({
+  const savedBlog = await Blog.create({
     author: body.author,
     title: body.title,
     url: body.url,
-    likes: body.likes
+    likes: body.likes,
+    userId: user.id
   })
 
   response.status(201).json(savedBlog) 
 })
 
-blogsRouter.delete('/:id', async (request, response) => {
-
+blogsRouter.delete('/:id', tokenExtractor, async (request, response) => {
+  const user = await User.findByPk(request.decodedToken.id)
   const blog = await Blog.findByPk(request.params.id)
 
-  await blog.destroy()
-  response.status(204).end()
+  if (blog.userId === user.id) {
+    await blog.destroy()
+    response.status(204).end()
+  } else {
+    response.status(401).end()
+  }
   
 })
 
@@ -36,7 +45,7 @@ blogsRouter.put('/:id', async (request, response) => {
   const blog = await Blog.findByPk(request.params.id)
   if (blog) {
   blog.set({...body})
-  updatedBlog = await blog.save()
+  const updatedBlog = await blog.save()
   response.json(updatedBlog)
   } else {
     response.status(404).end()
