@@ -33,14 +33,10 @@ blogsRouter.get('/', async (request, response) => {
 blogsRouter.post('/', tokenExtractor, async (request, response) => {
   const body = request.body
   const user = await User.findByPk(request.decodedToken.id)
-
   const savedBlog = await Blog.create({
-    author: body.author,
-    title: body.title,
-    url: body.url,
-    likes: body.likes,
+    ...body,
     userId: user.id
-  })
+  }) 
 
   response.status(201).json(savedBlog) 
 })
