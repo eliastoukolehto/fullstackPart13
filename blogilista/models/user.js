@@ -20,6 +20,10 @@ User.init({
       isEmail: true,
     }
   },
+  disabled: {
+    type: DataTypes.BOOLEAN,
+    defaultValue: false
+  },
   password: {
     type: DataTypes.TEXT,
     allowNull: false
